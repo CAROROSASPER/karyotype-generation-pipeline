@@ -1,0 +1,122 @@
+{
+  "_comment": "Copy to config.json and fill in your paths. Hyperparameters match the published paper (Scientific Reports).",
+
+  "drive_root": "/content/drive/MyDrive/54816",
+  "out_dir":    "/content/drive/MyDrive/54816/e2e_outputs_run",
+
+  "data": {
+    "dataset_a": {
+      "multi_img_dir":  "{drive_root}/24_chromosomes_object/JEPG",
+      "multi_xml_dir":  "{drive_root}/24_chromosomes_object/annotations",
+      "single_img_dir": "{drive_root}/single_chromosomes_object/JEPG",
+      "single_xml_dir": "{drive_root}/single_chromosomes_object/annotations",
+      "_note": "Dataset A: Tseng et al. 2023 (Sci. Data), 7000 metaphase images"
+    },
+    "dataset_b": {
+      "root": "/content/drive/MyDrive/dataset_b_qband",
+      "_note": "Dataset B: Poletti et al. 2012 (CMPB), 5474 Q-band isolated chromosomes, 24 classes"
+    },
+    "csv_normal":    "{drive_root}/normal.csv",
+    "csv_num_abn":   "{drive_root}/number_abnormalities.csv",
+    "csv_str_abn":   "{drive_root}/structural_abnormalities.csv"
+  },
+
+  "models": {
+    "overlap_model":     "/content/drive/MyDrive/Modelos/overlap_modelo_entrenado2.pt",
+    "yolo24_model":      "{drive_root}/weight/best-24_chromosomes.pt",
+    "yolo_single":       "{drive_root}/weight/best_single_chromosomes.pt",
+    "resnet_model":      "/content/drive/MyDrive/ResNet50_cromosomas_model.keras",
+    "autoencoder_model": "{drive_root}/weights_autoencoder/autoencoder_model.keras"
+  },
+
+  "training": {
+    "_ref": "Paper Sections 2.3.2, 2.4, 3.1, 3.2, 6",
+    "seed":           0,
+    "split": {
+      "train": 0.70,
+      "val":   0.20,
+      "test":  0.10,
+      "_note": "Paper Section 2.2: 70/20/10 hold-out split"
+    },
+    "yolo": {
+      "epochs":     40,
+      "imgsz":      640,
+      "batch":      32,
+      "lr":         0.001,
+      "_note": "All three YOLO models use same hyperparams (Sections 2.3.2, 2.4, 3.1)"
+    },
+    "resnet": {
+      "epochs":          100,
+      "batch":           32,
+      "lr":              0.001,
+      "optimizer":       "Adam",
+      "freeze_layers":   50,
+      "val_split":       0.25,
+      "augmentation": {
+        "rotation_range":     30,
+        "zoom_range":         0.20,
+        "horizontal_flip":    true,
+        "width_shift_range":  0.10,
+        "height_shift_range": 0.10
+      },
+      "callbacks": {
+        "early_stopping_patience":    15,
+        "reduce_lr_factor":           0.02,
+        "reduce_lr_patience":         3,
+        "reduce_lr_min_lr":           1e-6
+      },
+      "_note": "Paper Section 3.2. Dataset B (Q-band corpus), NOT Dataset A"
+    },
+    "autoencoder": {
+      "input_size":  [28, 28, 1],
+      "epochs":      50,
+      "batch":       32,
+      "loss":        "mse",
+      "training_data": "NORMAL cases only from Dataset A (structural+numerical anomalies excluded)",
+      "_note": "Paper Section 6 / Figure 4"
+    }
+  },
+
+  "inference": {
+    "overlap_conf_thr":  0.25,
+    "yolo_conf_thr":     0.25,
+    "yolo_iou_thr":      0.70,
+    "ae_threshold":      0.0148,
+    "_ae_note": "tau=0.0148 from paper Table 2/Section 8.5. Normal errors in [0,0.02]; anomalous in [0,0.06]."
+  },
+
+  "evaluation": {
+    "iou_thr":   0.50,
+    "score_thr": 0.25,
+    "tol_t":     0.95,
+    "fp_tol":    2,
+    "fn_tol":    2
+  },
+
+  "karyotype": {
+    "order": [
+      "A1","A2","A3","B4","B5",
+      "C6","C7","C8","C9","C10","C11","C12",
+      "D13","D14","D15",
+      "E16","E17","E18",
+      "F19","F20",
+      "G21","G22",
+      "X","Y"
+    ],
+    "cell_size": [220, 220],
+    "cols": 4,
+    "pad": 10
+  },
+
+  "results": {
+    "detection_mAP05":         0.985,
+    "detection_val_accuracy":  0.9803,
+    "pairwise_yolo_accuracy":  0.9401,
+    "pairwise_yolo_mAP":       0.948,
+    "pairwise_resnet_accuracy":0.9404,
+    "e2e_unified_yolo":        0.9401,
+    "e2e_hybrid_yolov_resnet": 0.9221,
+    "ae_threshold_tau":        0.0148,
+    "_note": "Published metrics from Scientific Reports submission"
+  }
+}

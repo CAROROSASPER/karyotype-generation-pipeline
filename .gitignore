@@ -1,0 +1,42 @@
+# Model weights (too large for git)
+models/*.pt
+models/*.pth
+models/*.keras
+models/*.h5
+models/*.onnx
+
+# Dataset files
+data/raw/
+data/processed/
+*.csv
+!data/examples/*.csv
+
+# Training runs
+runs/
+*.pt
+*.pth
+*.keras
+*.h5
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+venv/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Drive mounts
+/content/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
